@@ -30,33 +30,33 @@ namespace ExtendedMusicPlayer
 				new DownloadInfo
 				{
 					DestinationFilename = "earforce.mp3",
-					Source = "http://xamarinuniversity.blob.core.windows.net/ios210/earforce_ceremony.mp3",
+					Source = "https://xamarinuniversity.blob.core.windows.net/ios210/earforce_ceremony.mp3",
 					Status = DownloadInfo.STATUS.Idle,
 					Title = "Ceremony",
 					Artist = "Earforce",
-					Website = "http://www.earforce-bigband.de",
+					Website = "https://www.earforce-bigband.de",
 					CoverImage = "music_earforce.png"
 				},
 
 				new DownloadInfo
 				{
 					DestinationFilename = "epic.mp3",
-					Source = "http://xamarinuniversity.blob.core.windows.net/ios210/epic.mp3",
+					Source = "https://xamarinuniversity.blob.core.windows.net/ios210/epic.mp3",
 					Status = DownloadInfo.STATUS.Idle,
 					Title = "Epic",
 					Artist = "Bensound",
-					Website = "http://www.bensound.com",
+					Website = "https://www.bensound.com",
 					CoverImage = "music_epic.png"
 				},
 
 				new DownloadInfo
 				{
 					DestinationFilename = "jazzcomedy.mp3",
-					Source = "http://xamarinuniversity.blob.core.windows.net/ios210/jazzcomedy.mp3",
+					Source = "https://xamarinuniversity.blob.core.windows.net/ios210/jazzcomedy.mp3",
 					Status = DownloadInfo.STATUS.Idle,
 					Title = "Jazz Comedy",
 					Artist = "Bensound",
-					Website = "http://www.bensound.com",
+					Website = "https://www.bensound.com",
 					CoverImage = "music_jazzcomedy.png"
 				}
 			};
