@@ -152,6 +152,7 @@ namespace ExtendedMusicPlayer
 					else if(downloadInfo.Status == DownloadInfo.STATUS.Completed)
 					{
 						// Play MP3.
+						this.currentSongIndex = indexPath.Row;
 						this.PlayAudio(downloadInfo);
 					}
 				}
