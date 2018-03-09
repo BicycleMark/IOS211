@@ -170,8 +170,7 @@ namespace MusicPlayer
 		public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
 		{
 			if (RowSelectedFunc != null)
-				RowSelectedFunc(items[CollectionIndexFromIndexPath(indexPath)], this.GetCell(tableView, indexPath), indexPath);
-
+				RowSelectedFunc(items[CollectionIndexFromIndexPath(indexPath)], tableView.CellAt(indexPath), indexPath);
 		}
 
 		/// <summary>
