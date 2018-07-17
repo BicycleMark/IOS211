@@ -95,7 +95,12 @@ namespace BackgroundDownload
 			{
 				Console.WriteLine ("Calling completion handler.");
 				this.controller.BeginInvokeOnMainThread(() => {
-					new UIAlertView(string.Empty, "Selected files have been downloaded.", null, "OK").Show();
+					var alert = new UIAlertController
+					{
+						Message = "Selected files have been downloaded."
+					};
+					alert.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+					controller.PresentViewController(alert, true, null);
 
 					// Bring up a local notification to take the user back to our app.
 					Console.WriteLine ("Posting notification.");

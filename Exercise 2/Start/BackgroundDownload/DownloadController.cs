@@ -69,7 +69,7 @@ namespace BackgroundDownload
 				// Cancel all pending downloads.
 				if(this.session != null)
 				{
-					var pendingTasks = await this.session.GetTasksAsync();
+					var pendingTasks = await this.session.GetTasks2Async();
 					if(pendingTasks != null && pendingTasks.DownloadTasks != null)
 					{
 						foreach(var task in pendingTasks.DownloadTasks)

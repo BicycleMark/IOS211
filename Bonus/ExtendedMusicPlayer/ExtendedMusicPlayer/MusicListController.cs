@@ -72,7 +72,7 @@ namespace ExtendedMusicPlayer
 				// Stop audio.
 				this.PlayAudio(null);
 
-				var pendingTasks = await this.Session.GetTasksAsync();
+				var pendingTasks = await this.Session.GetTasks2Async();
 				if(pendingTasks != null && pendingTasks.DownloadTasks != null)
 				{
 					foreach(var task in pendingTasks.DownloadTasks)
@@ -124,7 +124,7 @@ namespace ExtendedMusicPlayer
 				// Create a session delegate and the session itself
 				// Initialize the session itself with the configuration and a session delegate.
 				var sessionDelegate = new SessionDelegate (this);
-				this.Session = NSUrlSession.FromConfiguration (sessionConfig, sessionDelegate, null);
+				this.Session = NSUrlSession.FromConfiguration (sessionConfig, (INSUrlSessionDelegate)sessionDelegate, null);
 			}
 
 			this.TableView.Source = new DelegateTableViewSource<DownloadInfo>(this.TableView, "MUSIC_CELL")
@@ -252,7 +252,13 @@ namespace ExtendedMusicPlayer
 			if (downloadTask == null)
 			{
 				downloadInfo.Status = DownloadInfo.STATUS.Idle;
-				new UIAlertView (string.Empty, "Failed to create download task! Please retry.", null, "OK").Show ();
+				var alert = new UIAlertController
+				{
+					Message = "Failed to create download task! Please retry."
+				};
+				alert.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+				PresentViewController(alert, true, null);
+
 				return;
 			}
 
