@@ -67,15 +67,17 @@ namespace BackgroundDownload
 			var refreshBtn = new UIBarButtonItem (UIBarButtonSystemItem.Refresh);
 			refreshBtn.Clicked += async (sender, e) => {
 				// Cancel all pending downloads.
-				var pendingTasks = await this.session.GetTasks2Async();
-				if(pendingTasks != null && pendingTasks.DownloadTasks != null)
+				if(this.session != null)
 				{
-					foreach(var task in pendingTasks.DownloadTasks)
+					var pendingTasks = await this.session.GetTasks2Async();
+					if(pendingTasks != null && pendingTasks.DownloadTasks != null)
 					{
-						task.Cancel();
+						foreach(var task in pendingTasks.DownloadTasks)
+						{
+							task.Cancel();
+						}
 					}
 				}
-
 				// Delete downloaded file.
 				if(File.Exists(targetFilename))
 				{
