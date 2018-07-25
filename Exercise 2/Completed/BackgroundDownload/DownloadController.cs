@@ -67,15 +67,17 @@ namespace BackgroundDownload
 			var refreshBtn = new UIBarButtonItem (UIBarButtonSystemItem.Refresh);
 			refreshBtn.Clicked += async (sender, e) => {
 				// Cancel all pending downloads.
-				var pendingTasks = await this.session.GetTasksAsync();
-				if(pendingTasks != null && pendingTasks.DownloadTasks != null)
+				if(this.session != null)
 				{
-					foreach(var task in pendingTasks.DownloadTasks)
+					var pendingTasks = await this.session.GetTasks2Async();
+					if(pendingTasks != null && pendingTasks.DownloadTasks != null)
 					{
-						task.Cancel();
+						foreach(var task in pendingTasks.DownloadTasks)
+						{
+							task.Cancel();
+						}
 					}
 				}
-
 				// Delete downloaded file.
 				if(File.Exists(targetFilename))
 				{
@@ -127,7 +129,7 @@ namespace BackgroundDownload
 				// Create a session delegate and the session itself
 				// Initialize the session itself with the configuration and a session delegate.
 				var sessionDelegate = new CustomSessionDownloadDelegate (this);
-				this.session = NSUrlSession.FromConfiguration (sessionConfig, sessionDelegate, null);
+				this.session = NSUrlSession.FromConfiguration (sessionConfig, (INSUrlSessionDelegate)sessionDelegate, null);
 			}
 		}
 
@@ -143,7 +145,12 @@ namespace BackgroundDownload
 			// The creation can fail. 
 			if (downloadTask == null)
 			{
-				new UIAlertView (string.Empty, "Failed to create download task! Please retry.", null, "OK").Show ();
+				var alert = new UIAlertController
+				{
+					Message = "Failed to create download task! Please retry."
+				};
+				alert.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+				PresentViewController(alert, true, null);
 				return;
 			}
 
