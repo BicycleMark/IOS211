@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+    <title>Exercise 2: Download files in the background</title>
+    <link rel="stylesheet" type="text/css" href="./res/styles/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./res/styles/prettify.css" />
+    <link rel="stylesheet" type="text/css" href="./res/styles/styles.css">
+</head>
+
+<body>
+    <!-- Use the same title as the StartHere -->
+    <header>Background Modes and File Transfers</header>
+
+    <section id="main">
+
+		<h1 id="page-title"></h1>
+		<h2>Duration</h2>
+		<p>20 minutes</p>
+
+		<h2>Goals</h2>
+
+		<p>
+			You will work on an application that downloads a very large monkey image and displays it when done. During the download, a progress bar gets updated and when the download is finished, a local notification is displayed to the user.
+		</p> 
+		<p>
+			To truly test the background downloads, we need to forcibly terminate the application - you can use the Task Switcher for this, or the UI has a quit button that will terminate the application by calling the private iOS <code>Exit</code> method. <b>Note that this is against the Apple guidelines and if you used this in a real application it would likely be rejected from the AppStore!</b> 
+		</p>
+
+		<p>
+			Your goal is to complete the download and notify the user even if the application gets terminated.
+		</p>
+
+		<p>
+			<img src="res/images/background_download.png" width="320" style='border:1px solid #888888' />
+		</p>
+
+
+		<!-- Note any starter/complete or assets included in this lab. -->
+		<h2>Required assets</h2>
+		<p>
+			The provided <strong>Exercise 2</strong> folder contains a starter project in the <strong>Lab.Start</strong> folder and a completed project which you can use to compare your final solution to.
+		</p>
+
+		<!-- Give them a challenge here, high-level steps of what we want them to do
+             so they can use this instead of the step-by-step (baby steps) included below -->
+		<h2>Exercise Overview</h2>
+
+		<div class="hintblock">
+			<strong>Attention:</strong>This exercise will not work correctly on the iOS Simulators. Currently applications running on the simulators are not suspended when running in the background. You can still complete this lab on simulator but the behavior will not match a real device. For best results use a physical iOS device.
+		</div>
+
+		<div class="hintblock">
+			<strong>Note: </strong>If you run the project on the iOS Simulator, you will see incorrect visual behavior of the remote control elements.
+			 This does not happen when you run the application on a physical device.
+		</div>
+
+		<p>
+			Background downloads on iOS require four things:
+		</p>
+
+		<ul>
+			<li>Session configuration (<code>NSUrlSessionConfiguration</code>)</li>
+			<li>Session delegate (<code>NSUrlSessionDownloadDelegate</code>)</li>
+			<li>Session identifier (<code>string</code>)</li>
+			<li>Session instance (<code>NSUrlSession</code>)</li>
+		</ul>
+
+		<p>
+			The session configuration defines the basic behavior of the transfer. The application will use the background configuration which can be created by calling
+			<code>NSUrlSessionConfiguration.CreateBackgroundSessionConfiguration()</code>. If the application is not running, it will be launched into the background. 
+			Then iOS calls <code>void HandleEventsForBackgroundUrl()</code> and afterwards the session delegate methods will be triggered.
+		</p>
+
+		<p>
+			Most of the infrastructure required to make the background download work has already been implemented and can be found in the <code>CustomSessionDownloadDelegate.cs</code> and in <code>DownloadController.cs</code>. Be sure to read through the code for a better understanding of what is going on behind the scenes.
+		</p>
+
+		<p>
+			When you have added the missing code pieces, run the application and start the download. You can see the download progress as the progress view slowly updates. Hit the <strong>Quit</strong> button to terminate the application and wait. After a while you should get a notification. Try double-pressing the home button to activate the task switcher. It will show an updated
+			screen shot of the application. Switch to the application to see that the monkey image has really been downloaded.
+		</p>
+
+		<div class="hintblock">
+			<strong>Tip:</strong> If you are doing this exercise live in a session, make sure to make good use of the instructor, they are online to answer any questions you have!
+	
+		</div>
+
+
+		<!-- Steps -->
+		<h1>Steps</h1>
+		<p>
+			Below are the step-by-step instructions to implement the exercise.
+		</p>
+
+		<h2>Create and configure the transfer session</h2>
+		<ol>
+			<li>
+				Locate the <code>InitializeSession()</code> method. Creating the required <code>NSUrlSession</code> requires several steps:
+				<ul type="square" class="indent-none">
+					<li>
+						Create a background session configuration by calling <code>NSUrlSessionConfiguration.CreateBackgroundSessionConfiguration</code>.	This takes a session identifier as parameter. 
+						<ul class="indent-none">
+							<li>
+								This ID is available as a constant in the view controller. 
+							</li>
+						</ul>
+					</li>
+
+					<li>
+						Create a session delegate. This has already been implemented for you in <code>CustomSessionDownloadDelegate.cs</code>.
+					</li>
+
+					<li>
+						With the configuration and the delegate, create the <code>NSUrlSession</code> and assign it to the <code>session</code> field which is already declared in the class.
+					</li>
+				</ul>
+			</li>
+		</ol>
+
+<p>
+<a href="#" onclick="toggleBlock(this, 'step_10', 'Show code', 'Hide'); return false;" class="uiitem">Show code</a>
+<div class="indent-medium" id="step_10" style="display: none;">
+<pre class="prettyprint">
+void InitializeSession()
+{
+  using (var sessionConfig = UIDevice.CurrentDevice.CheckSystemVersion(8, 0)
+    ? NSUrlSessionConfiguration.CreateBackgroundSessionConfiguration(sessionId)
+    : NSUrlSessionConfiguration.BackgroundSessionConfiguration (sessionId))
+  {
+    sessionConfig.AllowsCellularAccess = true;
+    sessionConfig.NetworkServiceType = NSUrlRequestNetworkServiceType.Default;
+    var sessionDelegate = new CustomSessionDownloadDelegate (this);
+    this.session = NSUrlSession.FromConfiguration (sessionConfig, (INSUrlSessionDelegate)sessionDelegate, null);
+  }
+}
+</pre>
+</div>
+</p>
+
+		<h2>Create a new download task</h2>
+		<p>
+			You need three things to start the download and make it continue even if the application is terminated:
+			<ul type="square" class="indent-medium">
+				<li>
+					The URL of the file to download.
+				</li>
+				<li>
+					A <code>NSUrlSessionDownloadTask</code> responsible for downloading the song.
+				</li>
+				<li>
+					The <code>NSUrlSession</code> which manages all the currently running downloads.
+				</li>
+			</ul>
+
+			<ol>
+				<li>
+					Locate the <code>EnqueueDownload</code> method and use it to create and start a new download task. This method gets called if you press the <em>Start download!</em> button.
+				</li>
+				<li>
+					Use the <code>session</code> field to create the download task (<code>CreateDownloadTask</code>) using the <code>DownloadController.downloadUrl</code> as the URL. You will need to convert this string into a <code>NSUrl</code>.
+				</li>
+				<li>
+					If it fails to create the download task, it will return <code>null</code>. Check for this case and show a message using <code>UIAlertController</code> on failure.
+				</li>
+
+				<li>
+					Otherwise, call <code>Resume</code> on the task to start/resume the download.
+				</li>
+			</ol>
+<p>
+<a href="#" onclick="toggleBlock(this, 'step_20', 'Show code', 'Hide'); return false;" class="uiitem">Show code</a>
+<div class="indent-medium" id="step_20" style="display: none;">
+<pre class="prettyprint">
+void EnqueueDownload()
+{
+  <span class="highlight">var downloadTask = this.session.CreateDownloadTask (NSUrl.FromString (DownloadController.downloadUrl));</span>
+
+  if (downloadTask == null)
+  {
+	var alert = new UIAlertController
+	{
+		Message = "Failed to create download task! Please retry."
+	};
+	alert.AddAction(UIAlertAction.Create("OK", UIAlertActionStyle.Default, null));
+	PresentViewController(alert, true, null);
+	return;
+  }
+
+  <span class="highlight">downloadTask.Resume ();</span>
+}
+</pre>
+</div>
+</p>
+
+		<h2>Retain the completion handler</h2>
+		<p>
+			If the application gets terminated while a download is executing, iOS will restart the application into the background. It will then
+			call <code>HandleEventsForBackgroundUrl</code> on the application delegate. 
+		</p>
+		<p>
+			You will have to retain the completion handler that is passed to you. The session delegate will call it when the download finishes to allow iOS to update the screen shot that is used for the task switcher.
+		</p>
+
+		<ol>
+			<li>
+				Open the <b>AppDelegate.cs</b> source file.
+			</li>
+			<li>
+				Override the <code>HandleEventsForBackgroundUrl</code> method and save the passed <code>Action</code> <b>completionHandler</b> off in the existing static field <b>BackgroundSessionCompletionHandler</b> that has already been declared.
+			</li>
+			<li>
+				You can see where this is used in the <b>CustomSessionDownloadDelegate.cs</b> file in the <code>DidFinishEventsForBackgroundSession</code> method.
+			</li>
+			<li>
+				Run the application and try downloading the large image.
+			</li>
+		</ol>
+
+<p>
+<a href="#" onclick="toggleBlock(this, 'step_30', 'Show code', 'Hide'); return false;" class="uiitem">Show code</a>
+<div class="indent-medium" id="step_30" style="display: none;">
+<pre class="prettyprint">
+public override void HandleEventsForBackgroundUrl (UIApplication application, 
+         string sessionIdentifier, Action completionHandler)
+{
+   BackgroundSessionCompletionHandler = completionHandler;
+}
+</pre>
+</div>
+</p>
+
+		<div class="hintblock">
+			<strong>Remember:</strong> Background file transfers do not require additional background mode settings in the <code>Info.plist</code> file!
+	
+		</div>
+
+		<h1>Summary</h1>
+		<p>
+			In this exercise you used background transfers to download data from the Internet even if the application gets terminated.
+		</p>
+		<div class="align-right">
+			<a href="../Start%20Here.html">Go Back</a>
+		</div>
+	</section>
+
+    <script src="./res/js/jquery.min.js"></script>
+    <script src="./res/js/prettify.js"></script>
+    <script src="./res/js/script.js"></script>
+
+    <footer>Copyright (C) 2018 Xamarin Inc., Microsoft.</footer>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+    <title>Background Modes and File Transfers</title>
+    <link rel="stylesheet" type="text/css" href="./parts/res/styles/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./parts/res/styles/prettify.css">
+    <link rel="stylesheet" type="text/css" href="./parts/res/styles/styles.css">
+</head>
+
+<body>
+    <!-- This will be filled in at runtime -->
+    <header role="course-title"></header>
+
+    <section id="main">
+
+        <h2>Before you begin</h2>
+        <p>
+        This is an iOS class. To complete the coding exercises, you will need a Xamarin.iOS development environment with either a configured iOS Simulator or a device to run the exercise on. Please read the <a href="https://university.xamarin.com/resources/setup-requirements">setup requirements</a> if you need help installing the Xamarin development environment.
+        </p>
+
+		<h2>Overview</h2>
+		<p>
+			After this session you will be able to improve the user experience of your application by allowing an ongoing operation to continue, even if your app is no longer the active one.
+		</p>
+      <div class="hintblock">
+      <b>Using the Simulator to run the lab exercises</b> 
+      <p class="indent-none">
+      Some of the lab exercises for this class utilize <code>AVAudioSession</code> to play music, both while the app is running and while it is not. If you plan to run the labs on the iOS Simulator, you will need to make sure you have both a valid input (microphone) and output (speaker) selected in the Audio settings on your Mac. If either of these are missing, the <code>AVAudioSession</code> will fail to initialize - the simulator requests both input and output on every session even if you only request output support. Some Macs, such as the Mac Mini do not include a built-in microphone and in this case you will need to plug in an external microphone such as a Mic/Headphone combination to get the labs to work properly.</p>
+      </div>
+
+		<h2>Objectives</h2>
+		<ol>
+			<li>Perform Long-Running Tasks without time limits</li>
+			<li>Transfer files in the background</li>
+		</ol>
+
+		<h2>Lecture</h2>
+		<p>
+         <a href="./parts/slides.pdf">IOS211 - Background Modes and File Transfers</a>
+      </p>
+
+		<h2>Exercises</h2>
+		<p>
+			Exercise materials are available from <a href="https://github.com/XamarinUniversity/IOS211/">GitHub</a>. The code can be cloned through a desktop Git client or <a href="https://github.com/XamarinUniversity/IOS211/archive/master.zip">downloaded directly</a> as a ZIP file.
+		</p>
+		<ol>
+			<li>
+				<div class="objective">Play music in the background</div>
+				<a href="./parts/part1.html">Exercise</a>
+				<br />
+				You will start music playback, keep it running if the app is backgrounded and react to remote control events.</li>
+
+			<li>
+				<div class="objective">Download a file in the background</div>
+				<a href="./parts/part2.html">Exercise</a>
+				<br />
+				You will use NSUrlSession to start a file download, hand it off to the operating system and keep it going even if the app gets terminated.</li>
+		</ol>
+
+		<!-- This section is for additional links and examples that are relevant to 
+            the material in this course -->
+		<h2>Additional resources</h2>
+		<p>
+         The lab materials contain a more complex demo that downloads music in the background, plays it back and shows how to serialize the current app state between restarts of the app. You can find it in the <strong>Bonus</strong> folder.
+		</p>
+
+		<div class="wslist">
+			<a href="http://developer.xamarin.com/guides/ios/application_fundamentals/backgrounding/">Xamarin documentation: Backgrounding on iOS</a>
+         <a href="https://university.xamarin.com/evolve2014videos">Evolve 2014 Training Videos</a>
+         <a href="https://developer.apple.com/library/ios/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/BackgroundExecution/BackgroundExecution.html#//apple_ref/doc/uid/TP40007072-CH4-SW1">Backgrounding Application programming guide for iOS (Apple)</a>
+		</div>
+
+	</section>
+
+    <script src="./parts/res/js/jquery.min.js"></script>
+    <script src="./parts/res/js/prettify.js"></script>
+    <script src="./parts/res/js/script.js"></script>
+
+    <footer>Copyright (C) 2018 Xamarin Inc., Microsoft.<br><a target="_blank" href="http://university.xamarin.com">Visit Xamarin University for more classes and content</a></footer>
+</body>
+</html>
+
