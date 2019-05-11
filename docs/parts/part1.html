@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+    <title>Exercise 1: Play music in the background</title>
+    <link rel="stylesheet" type="text/css" href="./res/styles/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./res/styles/prettify.css" />
+    <link rel="stylesheet" type="text/css" href="./res/styles/styles.css">
+</head>
+
+<body>
+    <!-- Use the same title as the StartHere -->
+    <header>Background Modes and File Transfers</header>
+
+   	<section id="main">
+
+		<h1 id="page-title"></h1>
+		<h2>Duration</h2>
+		<p>15 minutes</p>
+
+		<h2>Goals</h2>
+		<p>
+			The starter application supports playing music. It will currently stop playing when the application is backgrounded, your goal is to fix it so that it will continue playing if the app is backgrounded and react to remote control events.
+			<img src="res/images/xammusic.png" width="320" style='border:1px solid #888888' />
+		</p>
+
+ 		<div class="hintblock">
+			<strong>Attention:</strong>This exercise will not work correctly on the iOS Simulators. Currently applications running on the simulators are not suspended when running in the background. You can still complete this lab on simulator but the behavior will not match a real device. For best results use a physical iOS device.
+		</div>
+
+		<!-- Note any starter/complete or assets included in this lab. -->
+		<h2>Required assets</h2>
+		<p>
+			The provided <strong>Exercise 1</strong> folder contains a sub-folder named <strong>Lab.Start</strong> with a solution you will use as a starting point. There is also a <strong>Lab.Completed</strong> folder with the completed code if you want to compare your final solution.
+
+		</p>
+
+		<!-- Give them a challenge here, high-level steps of what we want them to do
+             so they can use this instead of the step-by-step (baby steps) included below -->
+		<h2>Exercise Overview</h2>
+
+		<p>
+			Here are the high-level steps you will need to perform. Use these to complete the exercise and refer to the more detailed step-by-step instructions to fill in any necessary details. In most places, the <code class="prettyprint codeblock">//TODO</code> comments will indicate the code that needs to be added or changed.
+		</p>
+			<ol>
+				<li>
+					You will need to create and configure the audio session in the <b>MusicListController.cs</b> <code>ViewDidLoad</code> method. The code you need is already in the method (commented out).
+				</li>
+
+				<li>
+					When a song is selected, the application will call the <code>PlayAudio()</code> method. You will need to create an instance of the <code>AVAudioPlayer</code> and initialize it with the song that should be played (passed into the method) and then call <code>Play</code> to start the playback. At this point the program will successfully play the music.
+				</li>
+
+				<li>
+					You will need to register the proper backgrounding modes in the application <b>info.plist</b>. This is what will allow the music to play in the background.
+				</li>
+
+				<li>
+					To add support for remote control events, you will need to call <code>BeginReceivingRemoteControlEvents</code> in the <code>ViewDidAppear</code> override. The reverse operation to turn off notifications should be done in the <code>ViewDidDisappear</code> override. You can play/pause the music through the Control Center (swipe up from the bottom of the screen).
+				</li>
+
+			</ol>
+		</p>
+
+		<div class="hintblock">
+			<strong>Tip:</strong> If you are doing this exercise live in a session, make sure to make good use of the instructor, they are online to answer any questions you have!
+		</div>
+
+
+		<!-- Steps -->
+		<h1>Steps</h1>
+		<p>
+			Below are the step-by-step instructions to implement the exercise.
+		</p>
+
+		<h2>Configure the Audio Session</h2>
+		<p>
+			Every application that wants to output audio has to configure global behavior. This is done through the <code>AVAudioSession</code> class. This is available through a singleton: <code>AVAudioSession.SharedInstance()</code>. You must define the category you want to use and then set the session active.
+		</p>
+
+		<ol>
+			<li>
+				Open the starter solution and read through the code of the <b>MusicListController.cs</b>. This is the controller that is responsible for all of the application's behavior.
+				<ul class="indent-none">
+					<li>
+						It populates a table view with songs included into the application.
+					</li>
+					<li>
+						Tapping an entry of the list will start playing the song through the <code>PlaySong</code> method.
+					</li>
+				</ul>
+			</li>
+
+			<li>
+				Locate the <code>ViewDidLoad</code> method.
+			</li>
+
+			<li>
+				Uncomment the code used to setup the audio session. This sets the category to be <em>Playback</em> and activates the audio session.
+			</li>
+		</ol>
+
+<p>
+<a href="#" onclick="toggleBlock(this, 'step_10', 'Show code', 'Hide'); return false;" class="uiitem">Show code</a>
+<div class="indent-medium" id="step_10" style="display: none;">
+<pre class="prettyprint">
+public override void ViewDidLoad()
+{
+   base.ViewDidLoad();
+   <span class="highlight">var audioSession = AVAudioSession.SharedInstance();</span>
+   <span class="highlight">audioSession.SetCategory (AVAudioSessionCategory.Playback);</span>
+   <span class="highlight">audioSession.SetActive (true);</span>
+
+   // Setup the UI
+   this.InitUi ();
+}
+</pre>
+</div>
+</p>
+
+		<h2>Play music while the application is in the foreground</h2>
+		<p>
+			There are multiple ways to play audio in iOS. Our application uses the <code>AVAudioPlayer</code> which is one of the simplest. You need to create a new instance of the player object and pass it an <code>NSUrl</code> that points to the location of the file to play. The application comes with three songs stored as content in the <b>Songs</b> folder.
+		</p>
+
+		<ol>
+			<li>
+				When a song is selected, the application will call the <code>PlayAudio()</code> method. In this method, create an instance of the <code>AVAudioPlayer</code> (there is already a class member <code>audioPlayer</code> that you can use).
+            <ul class="indent-none">
+               <li>
+                  Information about the song is wrapped in a <code>SongInfo</code> object that has a property <code>FullDestinationFilePath</code> which contains the full path of the song. You will need to wrap this path in a <code>NSUrl</code> object and pass it into the constructor (use <code>NSUrl.FromFilename</code> to create the URL).
+               </li>
+               <li>
+                  Pass &quot;mp3&quot; as the file type hint.
+               </li>
+               <li>
+                  Pass the existing <code>NSerror</code> field declared above the <code>TODO</code> marker as an output parameter.
+               </li>
+            </ul>
+			</li>
+			<li>
+				To start playback, use <code>AVAudioPlayer.Play()</code> if there was no error - there is a <code>//TODO</code> comment marker to indicate the proper position for this code.
+			</li>
+			<li>
+				At this point you can run the application and you should be able to play a song and listen to it while the application is in the foreground.
+			</li>
+		</ol>
+<p>
+<a href="#" onclick="toggleBlock(this, 'step_20', 'Show code', 'Hide'); return false;" class="uiitem">Show code</a>
+<div class="indent-medium" id="step_20" style="display: none;">
+<pre class="prettyprint">
+void PlayAudio(SongInfo songInfo)
+{
+   this.StopAudio ();
+
+   NSError error;
+   <span class="highlight">this.audioPlayer = new AVAudioPlayer(NSUrl.FromFilename(songInfo.FullDestinationFilePath), "mp3", out error);</span>
+
+   if(error == null)
+   {
+      <span class="highlight">this.audioPlayer.Play();</span>
+      // [...]
+   }
+   ...
+</pre>
+</div>
+</p>
+
+		<h2>Enable background support</h2>
+		<p>
+			The application now plays music, but it will not play any audio if it is backgrounded. You still have to enable the audio background mode.
+		</p>
+
+		<ol>
+         <li>
+            Double-click on the <b>info.plist</b> file in the Solution Explorer to open the GUI editor.
+         </li>
+
+			<li>
+				In Visual Studio for Mac, scroll all the way down, check the "Enable Background Modes" box and then enable the <i>Audio and Airplay</i> background mode.
+			</li>
+
+			<img src="res/images/xs-enable_background_mode.png" />
+
+         <li>
+            In Visual Studio on Windows, select the "Background Modes" tab to show the options, check the "Enable Background Modes" box and then enable the <i>Audio and Airplay</i> background mode.
+         </li>
+
+         <img src="res/images/vs-enable_background_mode.png" />
+
+			<li>
+				Run the application, start playing some music and then hit the <b>Home</b> button to background the application - it should continue playing the music.
+			</li>
+		</ol>
+
+		<h2>Support remote control events</h2>
+		<p>
+			If you open the Control Panel by swiping up from the bottom of the screen while your application is playing music you will see the title and artist of the song currently playing. However you will not be able to pause or skip to the next song. To support this, your application needs to react to remote control events.
+		</p>
+
+		<ol>
+			<li>
+				Find the <code>ViewDidAppear</code> method and use the <code>UIApplication.BeginReceivingRemoteControlEvents</code> method to start receiving events. This is an <em>instance</em> method so you will need the shared application to call it. In addition, to ensure that this view controller is part of the responder chain, add a call to <code>BecomeFirstResponder</code> right after you enable the events.
+			</li>
+
+			<li>
+				To unsubscribe, find the <code>ViewDidDisappear</code> method and use the <code>UIApplication.EndReceivingRemoteControlEvents</code> method to turn off remote control events. Resign the first responder position through the <code>ResignFirstResponder</code> method.
+			</li>
+
+			<li>
+				Run the application, start playing music, and use the Control Panel to pause the music. This will call into the <code>RemoteControlReceived()</code> method which has already been implemented for you. You can set a breakpoint into this method to see how it works. <em>Note that this implementation is very simple - it does not distinguish between pause / stop for example</em>.
+			</li>
+		</ol>
+
+<p>
+<a href="#" onclick="toggleBlock(this, 'step_30', 'Show code', 'Hide'); return false;" class="uiitem">Show code</a>
+<div class="indent-medium" id="step_30" style="display: none;">
+<pre class="prettyprint">
+public override void ViewDidAppear (bool animated)
+{
+   base.ViewDidAppear (animated);
+   <span class="highlight">UIApplication.SharedApplication.BeginReceivingRemoteControlEvents ();
+   this.BecomeFirstResponder();</span>
+}
+
+public override void ViewDidDisappear (bool animated)
+{
+   base.ViewDidDisappear (animated);
+   <span class="highlight">UIApplication.SharedApplication.EndReceivingRemoteControlEvents ();
+   this.ResignFirstResponder();</span>
+}
+</pre>
+</div>
+</p>
+
+
+		<h1>Summary</h1>
+		<p>
+			In this exercise you have added audio output to an application and enabled the corresponding background mode so that music can
+			be played even if the application is backgrounded.
+		</p>
+		<div class="align-right">
+			<a href="../Start%20Here.html">Go Back</a>
+		</div>
+	</section>
+
+    <script src="./res/js/jquery.min.js"></script>
+    <script src="./res/js/prettify.js"></script>
+    <script src="./res/js/script.js"></script>
+
+    <footer>Copyright (C) 2018 Xamarin Inc., Microsoft.</footer>
+</body>
+</html>
